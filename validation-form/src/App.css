@@ -1,0 +1,18 @@
+.body{
+    border: 2px solid black;
+    margin-left: 35%;
+    width: 30%;
+    float: center;   
+    background-color: lightgreen;
+    box-shadow: -4px 0px 4px 5px grey;
+}
+.app{
+    justify-content: center;
+}
+
+@media only screen and (max-width: 700px) {
+    .body {
+        margin:5%;
+        width: 90%;
+    }
+  }
