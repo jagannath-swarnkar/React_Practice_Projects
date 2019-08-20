@@ -1,0 +1,21 @@
+.main_body{
+}
+input{
+    width: 300px;
+    height:20px;
+    font-size: 20px;
+    padding: 5px;
+    border: 3px solid darkgrey;
+    margin-top: 5px;
+}
+span{
+    text-align: center;
+    font-size: 20px;
+}
+.form{
+    margin: 10px;
+    margin-left: 30px;
+}
+p{
+    color: red;
+}
