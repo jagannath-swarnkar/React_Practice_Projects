@@ -1,0 +1,8 @@
+.status{
+    display: flex;
+    justify-content: space-around;
+    background-color:rgb(255, 0, 64);
+    color: white;
+    padding: 10px;
+    font-size: 30px;
+}

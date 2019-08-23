@@ -1,0 +1,16 @@
+li{
+    border: 0px solid grey;
+    margin: 10px;
+    list-style: none;
+    padding: 25px;
+    background-color: lightgrey;
+}
+.box{
+    margin-right: 20px;
+    cursor: pointer;
+}
+.donebox{
+    display: none;
+    margin-right: 20px;
+    cursor: pointer;
+}
