@@ -12,11 +12,13 @@ export class AddTodoForm extends Component {
     this.props.triggerParentUpdate(data);
    } 
    onSubmitHandler(event){
-    var Item = event.target.value;    
+    var Item = event.target.value; 
+       if(Item.length>0){
     this.props.triggerParentUpdate2(Item);
     var a=(this.props.Total+1);
     
     this.props.totalData(a)
+   }
    }
    
    
