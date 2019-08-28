@@ -4,7 +4,7 @@ function Todo(props){
 
     return(
         <div className="todo">
-            <input type="text" value={props.todo} onChange={props.onChangeHandler}/>
+            <input autoFocus type="text" value={props.todo} onChange={props.onChangeHandler}/>
             <button onClick={props.addItem}>Submit</button>
         </div>
     )

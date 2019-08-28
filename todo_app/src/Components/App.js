@@ -13,6 +13,7 @@ export default class App extends Component{
             item:'',
             itemList:[],
             defaultList:'total',
+            editId:""
         }
     }
     onChangeHandler = (e) => {
@@ -23,7 +24,8 @@ export default class App extends Component{
 
     addItem = () => {
         if(this.state.item.length>0){
-            let itemList = this.state.itemList;
+            var itemList = this.state.itemList;
+            if(this.state.editId===""){
             itemList.push({
                 text:  this.state.item,
                 done: false
@@ -32,6 +34,18 @@ export default class App extends Component{
                 itemList:itemList,
                 item:''
             });
+        }else{
+            for(var i in itemList){
+                if(itemList[i].text===this.state.editId){
+                    itemList[i].text=this.state.item;
+                    this.setState({
+                        itemList:itemList,
+                        editId:"",
+                        item:''
+                    })
+                }
+            }
+        }
         }
     }
 
@@ -59,13 +73,27 @@ export default class App extends Component{
             this.setState({ defaultList:e.target.dataset.id })
         }
     }
+    edit = (e) =>{
+        var itemList = this.state.itemList
+        for(var i in itemList){
+            if(itemList[i].text===e.target.id){
+                this.setState({
+                    item:itemList[i].text,
+                    editId:e.target.id
+                })
+            }
+        }
+    }
+    updateEdit=(e)=>{
+
+    }
 
     render(){
         return (
             <div>
                 <Stats listShouldbe={this.listShouldbe} itemList={this.state.itemList} />
                 <Todo  todo={this.state.item} onChangeHandler={this.onChangeHandler} addItem={this.addItem}/>
-                <List  checkbox={this.checkbox} itemList={this.state.itemList} defaultList={this.state.defaultList} checked={this.state.checked}/>
+                <List  checkbox={this.checkbox} itemList={this.state.itemList} defaultList={this.state.defaultList} edit={this.edit}/>
             </div>
         )
     }

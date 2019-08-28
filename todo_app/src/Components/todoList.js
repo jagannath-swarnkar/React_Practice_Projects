@@ -2,7 +2,6 @@ import React from 'react';
 
 export default function List(props) {
     const listState = props.defaultList;
-    
     const todos = props.itemList.filter((it) => {
         if ( listState === 'pending' ) {            
             return !it.done;
@@ -12,13 +11,17 @@ export default function List(props) {
             return true;
         }
     });
+
+    // const edit = ()=>{
+    //     console.log("good night")
+    // }
     return (
         <div className="list">
             <ol>{todos.map((item,index)=> {
-                return  <li key={index}>
-                <input id={item.text} value={item} type="checkbox" onChange={props.checkbox} 
-                    checked={item.done}/>
-                {item.text}
+                return  <li key={index} onDoubleClick={props.edit} id={item.text}>
+                <input id={item.text} type="checkbox" onChange={props.checkbox} 
+                checked={item.done}/>
+                <span >{item.text}</span>
             </li>
             }
 
