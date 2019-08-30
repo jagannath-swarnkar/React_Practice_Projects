@@ -10,7 +10,7 @@ class Stats extends React.Component  {
         var count =0
         var total = this.props.itemList;
         for(var i of total){
-            if(i.done===true){
+            if(i.done===true || i.done===1){
                 count++                
             }
         }
@@ -20,7 +20,7 @@ class Stats extends React.Component  {
         var count =0
         var total = this.props.itemList;
         for(var i of total){
-            if(i.done===false){
+            if(i.done===false || i.done===0){
                 count++                
             }
         }

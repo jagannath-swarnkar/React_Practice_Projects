@@ -3,6 +3,7 @@ import './App.css'
 import Stats from './Stats';
 import Todo from './Todo';
 import List from './todoList';
+import axios from 'axios';
 
 
 export default class App extends Component{
@@ -16,6 +17,22 @@ export default class App extends Component{
             editId:""
         }
     }
+
+    UNSAFE_componentWillMount(){        
+        axios
+        .get('/get')
+        .then(result=>{console.log(result.data);
+        
+            this.setState({
+                itemList:result.data    
+            })
+        })
+        .catch(err=>{
+            console.log('this is err',err);
+            
+        })
+    }
+
     onChangeHandler = (e) => {
         this.setState({
             item:e.target.value
@@ -35,33 +52,51 @@ export default class App extends Component{
                 item:''
             });
         }else{
+            console.log('this is else')
+            console.log(this.state.editId)
             for(var i in itemList){
                 if(itemList[i].text===this.state.editId){
                     itemList[i].text=this.state.item;
-                    this.setState({
-                        itemList:itemList,
-                        editId:"",
-                        item:''
+                    axios
+                    .put("/put/"+i, {text:this.state.item})
+                    .then(()=>{
+                        console.log("put mehtonfsnj");
+                    })
+                    .catch((err)=>{console.log( 'err in put',err);
                     })
                 }
             }
+            console.log(this.state.itemList)
+            this.setState({
+                itemList:itemList,
+                editId:"",
+                item:''
+            })
         }
+        axios
+        .post('/post',this.state.itemList[this.state.itemList.length-1])
+        .then(() => console.log('data uploaded!'))
+        .catch(err => console.log(err));
+
         }
     }
 
     checkbox = (e) => {
-        var index = e.target.id;
         const itemList = this.state.itemList;
-        for(var i in itemList){
-            console.log(i,e.target.id);
-            
+        for(var i in itemList){            
             if(itemList[i].text===e.target.id){
                 itemList[i].done = true;
-                this.setState({ itemList });
+                this.setState({ itemList })
+                axios
+                .put('/done/'+i,{done:true})
+                .then(()=>{console.log('done')
+                })
+                .catch((err)=>{console.log('err in done updating',err)
+                })
             }
         }
     }
-
+localhost
     listShouldbe = (e) =>{ 
         if(e.target.dataset.id==='pending'){
         this.setState({ defaultList:e.target.dataset.id })
@@ -83,9 +118,6 @@ export default class App extends Component{
                 })
             }
         }
-    }
-    updateEdit=(e)=>{
-
     }
 
     render(){
