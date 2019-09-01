@@ -16,7 +16,7 @@ export default function List(props) {
         <div className="list">
             <ol>{todos.map((item,index)=> {
                 return  <li key={index} onDoubleClick={props.edit} id={item.text}>
-                <input id={item.text} type="checkbox" onChange={props.checkbox} 
+                <input onKeyPress={props.addItem} id={item.text} type="checkbox" onChange={props.checkbox} 
                 checked={item.done}/>
                 {item.text}
             </li>

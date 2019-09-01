@@ -14,16 +14,24 @@ export default class App extends Component{
             item:'',
             itemList:[],
             defaultList:'total',
-            editId:""
+            editId:"",
+            jwt:''
         }
     }
 
-    UNSAFE_componentWillMount(){        
+    UNSAFE_componentWillMount(){     
+        this.setState({jwt:this.props.jwt},()=>{
+            // axios
+            // .post('/token',{'token':this.state.jwt})
+            // .then(()=>console.log('token send to backend'))
+            // .catch((err)=>{console.log('err in sending token to the backend :',err)})
+        // })
+            
         axios
-        .get('/get')
-        .then(result=>{console.log(result.data);
-        
-            this.setState({
+        .get('/get',{params:{token:this.state.jwt}})
+        .then(result=>{console.log('get method',result.data);
+            
+                this.setState({
                 itemList:result.data    
             })
         })
@@ -31,7 +39,9 @@ export default class App extends Component{
             console.log('this is err',err);
             
         })
-    }
+        
+    })
+} 
 
     onChangeHandler = (e) => {
         this.setState({
@@ -39,7 +49,8 @@ export default class App extends Component{
         })
     }
 
-    addItem = () => {
+    addItem = (e) => {
+    if(e.key==='Enter' || e.target.id === 'button'){
         if(this.state.item.length>0){
             var itemList = this.state.itemList;
             if(this.state.editId===""){
@@ -50,35 +61,38 @@ export default class App extends Component{
             this.setState({
                 itemList:itemList,
                 item:''
+            },()=>{
+                axios
+                .post('/post',{token:this.state.jwt,data:this.state.itemList[this.state.itemList.length-1]})
+                .then(() => console.log('data uploaded!'))
+                .catch(err => console.log(err));
             });
         }else{
-            console.log('this is else')
-            console.log(this.state.editId)
-            for(var i in itemList){
+            console.log(this.state.editId);
+            
+            for(var i in itemList){                
                 if(itemList[i].text===this.state.editId){
+                    console.log(itemList[i].text,this.state.editId);
                     itemList[i].text=this.state.item;
+                    console.log('opopopo',i);
+                    
                     axios
-                    .put("/put/"+i, {text:this.state.item})
+                    .put("/put/"+i, {token:this.state.jwt,text:this.state.item})
                     .then(()=>{
                         console.log("put mehtonfsnj");
                     })
                     .catch((err)=>{console.log( 'err in put',err);
                     })
+                }else{console.log('hejagannnatjkerllo');
                 }
             }
-            console.log(this.state.itemList)
             this.setState({
                 itemList:itemList,
                 editId:"",
                 item:''
             })
         }
-        axios
-        .post('/post',this.state.itemList[this.state.itemList.length-1])
-        .then(() => console.log('data uploaded!'))
-        .catch(err => console.log(err));
-
-        }
+        }}
     }
 
     checkbox = (e) => {
@@ -88,7 +102,7 @@ export default class App extends Component{
                 itemList[i].done = true;
                 this.setState({ itemList })
                 axios
-                .put('/done/'+i,{done:true})
+                .put('/done/'+i,{done:true,text:itemList[i].text,token:this.state.jwt})
                 .then(()=>{console.log('done')
                 })
                 .catch((err)=>{console.log('err in done updating',err)
@@ -96,7 +110,7 @@ export default class App extends Component{
             }
         }
     }
-localhost
+
     listShouldbe = (e) =>{ 
         if(e.target.dataset.id==='pending'){
         this.setState({ defaultList:e.target.dataset.id })
@@ -109,6 +123,8 @@ localhost
         }
     }
     edit = (e) =>{
+        console.log(e.target.id);
+        
         var itemList = this.state.itemList
         for(var i in itemList){
             if(itemList[i].text===e.target.id){
@@ -119,13 +135,13 @@ localhost
             }
         }
     }
-
+    
     render(){
         return (
             <div>
                 <Stats listShouldbe={this.listShouldbe} itemList={this.state.itemList} />
-                <Todo  todo={this.state.item} onChangeHandler={this.onChangeHandler} addItem={this.addItem}/>
-                <List  checkbox={this.checkbox} itemList={this.state.itemList} defaultList={this.state.defaultList} edit={this.edit}/>
+                <Todo addItem={this.addItem} todo={this.state.item} onChangeHandler={this.onChangeHandler} addItem={this.addItem}/>
+                <List addItem={this.addItem} checkbox={this.checkbox} itemList={this.state.itemList} defaultList={this.state.defaultList} edit={this.edit}/>
             </div>
         )
     }
