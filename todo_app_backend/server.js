@@ -126,7 +126,7 @@ app.put('/done/:id',checkToken,(req,res)=>{
     
 
 })
-
+  
 
 // Post method for signup page / inserting user detail into database
 app.post('/signup',(req,res)=>{
@@ -138,7 +138,8 @@ app.post('/login',(req,res)=>{
     knex('userdetail')
     .where('userdetail.email',req.body.email)
     .then((data)=>{        
-        if(data.length>0){            
+        if(data.length>0){   
+            if(data[0].password===req.body.password){
         jwt.sign(data[0], process.env.SECRET, { expiresIn: '1h' }, (err, token) => {
             if(!err){
                 // res.clearCookie("key");
@@ -148,6 +149,7 @@ app.post('/login',(req,res)=>{
             }else{console.log('some err in sending token in cookie'),err;
             }
             })
+        }else{console.log('wrong password'),res.send('wrongPass')}
         }else{console.log('user does not exists please signup first');res.send('err')}
     })
     .catch((err)=>{console.log(err);

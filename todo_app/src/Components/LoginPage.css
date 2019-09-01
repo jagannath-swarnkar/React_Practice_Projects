@@ -75,6 +75,7 @@
     letter-spacing:.1em;
     background:#1ab188;
     color:#ffffff;
+    padding-bottom: 45px;
    
   }
   label {
@@ -91,5 +92,5 @@
   }
   #login{
       width: 400px;
-      margin-top:-25px; 
+      margin-top:-20px; 
   }

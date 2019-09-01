@@ -27,17 +27,23 @@ export class LoginPage extends Component {
         axios
         .post('/login',(this.state))
         .then((data)=> {
-            if(data.data!=='err'){
+            if(data.data==="wrongPass"){
+                this.setState({password:''},()=>{swal("Wrong Password!", "Please enter a valid password!","error");})
+                // document.getElementById('pass').focus();
+                }    
+            else if(data.data==='err'){
+                this.setState({email:'',password:''},()=>{swal("Login failed!", "User detail does not exists, Please signup first!","error");})
+                }
+            else{
                 this.props.login()
                 console.log("data send successfuly");console.log(data.data)
                 this.props.jwtHandler(data.data.toString())
                 this.setState({email:'',password:''},()=>{swal("Login successful!", "...Please press enter for the next!");})
-                }else{
-                    this.setState({email:'',password:''},()=>{swal("Login failed!", "User detail does not exists Please, signup first!","error");})
                 }
+            
             })
         .catch((err)=>{
-            this.setState({email:'',password:''},()=>{swal("Login failed! user detail does not exists", "...Please sign up first!","error");})
+            this.setState({email:'',password:''},()=>{swal("Login failed! ", "User detail does not exists, Please signup first!","error");})
         }
         )
     }
@@ -53,7 +59,7 @@ export class LoginPage extends Component {
                                 <label>
                                     Email Address<span className="req">*</span>
                                 </label>
-                                <input className="box-size bl" onChange={this.onChangeEmail} value={this.state.email} type="email" required autoComplete="off" name="email" />
+                                <input autoFocus className="box-size bl" onChange={this.onChangeEmail} value={this.state.email} type="email" required autoComplete="off" name="email" placeholder=" abc@gmail.com"/>
                             </div>
 
                             
@@ -61,7 +67,7 @@ export class LoginPage extends Component {
                                 <label>
                                 Password<span className="req">*</span>
                                 </label>
-                                <input className="box-size bl" onChange={this.onChangePass} value={this.state.password} type="password" required autoComplete="off" name="Password" />
+                                <input id="pass" className="box-size bl" onChange={this.onChangePass} value={this.state.password} type="password" required autoComplete="off" name="Password" placeholder=" abc@123$ABC"/>
                             </div>
                                 {/* <p><a href="https://jagannath-swarnkar.github.io/HTML_projects/signup">Signup</a></p>
                                     <p><a href="#">Forgot Password?</a></p>  */}
