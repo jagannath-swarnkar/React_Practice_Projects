@@ -24,10 +24,10 @@ var knex = require('knex')({
 knex.schema.hasTable('todo').then(function(exists){
     if(!exists){
         return knex.schema.createTable('todo', function (table) {
-            table.increments('id').primary();
-            table.integer('userId');
-            table.string('text');
-            table.boolean('done');
+            table.increments('id').primary().notNullable();
+            table.integer('userId').notNullable();
+            table.string('text').notNullable();
+            table.boolean('done').notNullable();
           })
     }
 })
@@ -37,9 +37,10 @@ knex.schema.hasTable('todo').then(function(exists){
 knex.schema.hasTable('userdetail').then((exists)=>{
     if(!exists){
         return knex.schema.createTable('userdetail',(t)=>{
-            t.increments('userId').primary().unique();
-            t.string('email').unique();
-            t.string('password');
+            t.increments('userId').primary().unique().notNullable();
+            t.string('name').notNullable();
+            t.string('email').unique().notNullable();
+            t.string('password').notNullable();
         },()=>{
             console.log('userdetail table created successfuly');
         })
@@ -57,27 +58,22 @@ app.use((req, res, next) => {
 
 app.get('/get',checkToken,(req,res)=>{    
     jwt.verify(req.token,process.env.SECRET,(err,authData)=>{
-        if(!err){                        
+        if(!err){                     
             knex('todo')
             .where('todo.userId',authData.userId)
             .then((result)=>{
-                console.log('result',result,authData.userId);
+                // console.log('result',result,authData.userId);
 
                 if(result.length>0){
                     res.json(result)
                 }
-
                 })
-            .catch((err)=>{console.log(err),err
-            });
+            .catch((err)=>{console.log(err)});
         }
     })
 })
  
 
-// app.post('/token',(req,res)=>{
-//     console.log('token in backend : ',req.body.token);
-// })
 
 app.post('/post',checkToken,(req,res)=>{
     jwt.verify(req.token,process.env.SECRET,(err,authData)=>{
@@ -85,7 +81,17 @@ app.post('/post',checkToken,(req,res)=>{
             req.body.data.userId = authData.userId;
             knex('todo')
             .insert(req.body.data)
-            .then(() => console.log('data inserted',req.body.data))
+            .then(() => {console.log('data inserted',req.body.data),
+                    knex('todo')
+                    .where('todo.userId',authData.userId)
+                    .then((result)=>{
+                        if(result.length>0){
+                            console.log('updated todo has sent to backend',result);
+                            res.send(result)
+                        }
+                        })
+                    .catch((err)=>{console.log(err)});
+                })
             .catch(err => console.log(err));
         }    
     })   
@@ -93,22 +99,11 @@ app.post('/post',checkToken,(req,res)=>{
 
 app.put('/put/:id',checkToken,(req,res)=>{
     jwt.verify(req.token,process.env.SECRET,(err,authData)=>{
-        let id = parseInt(req.params.id)+1;
-        let text = req.body.text;  
-        // console.log('here is id :',id,text);
-        
+        let text = req.body.text;          
         knex('todo')
-        .where('todo.userId',authData.userId)
-        .then((data) =>{
-            var todoId = data[id-1].id;
-            console.log(todoId,text);
-            
-            knex('todo')
-            .where('todo.id',todoId)
-            .update({text:text})
-            .then(()=>console.log('data updated'))
-            .catch((err)=>console.log(err.message))
-        })
+        .where('todo.userId',authData.userId).andWhere('todo.id',req.body.id)
+        .update({text:text})
+        .then((data) =>{console.log('database data',data);})
         .catch((err)=>console.log(err))
     })
 })
@@ -117,10 +112,10 @@ app.put('/done/:id',checkToken,(req,res)=>{
     jwt.verify(req.token,process.env.SECRET,(err,authData)=>{
         if(!err){
             knex('todo')
-            .where('todo.text',req.body.text).andWhere('todo.userId',authData.userId)
-            .update({done:true})
+            .where('todo.id',req.body.id).andWhere('todo.userId',authData.userId)
+            .update({done:req.body.done})
             .then(() => console.log('done updated in db'))
-            .catch((err)=>console.log(err))
+            .catch((err)=>{res.send('err')})
         }
     })
     
@@ -130,7 +125,22 @@ app.put('/done/:id',checkToken,(req,res)=>{
 
 // Post method for signup page / inserting user detail into database
 app.post('/signup',(req,res)=>{
-    knex('userdetail').insert({email:req.body.email,password:req.body.password})
+    console.log(req.body);
+    knex('userdetail')
+        .insert({name:req.body.name,email:req.body.email,password:req.body.password1})
+        .then(()=>{console.log('user signup detail has saved to database successfyly');
+            knex('userdetail')
+            .where('userdetail.email',req.body.email)
+            .then((result)=>{
+                console.log(result);
+                
+                res.send(result)
+            })
+           .catch((err)=>console.log(err)
+           ) 
+            })
+        .catch((err)=>{console.log('err in inserting signup detail of user into database',err),res.send('err')})
+    
 })
 
 // post method for login page verifying login data to signup data and Creating JWT token

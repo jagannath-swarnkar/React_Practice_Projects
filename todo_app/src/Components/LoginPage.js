@@ -27,6 +27,8 @@ export class LoginPage extends Component {
         axios
         .post('/login',(this.state))
         .then((data)=> {
+            console.log('data checking',data.data);
+            
             if(data.data==="wrongPass"){
                 this.setState({password:''},()=>{swal("Wrong Password!", "Please enter a valid password!","error");})
                 // document.getElementById('pass').focus();
@@ -35,7 +37,7 @@ export class LoginPage extends Component {
                 this.setState({email:'',password:''},()=>{swal("Login failed!", "User detail does not exists, Please signup first!","error");})
                 }
             else{
-                this.props.login()
+                // this.props.login()
                 console.log("data send successfuly");console.log(data.data)
                 this.props.jwtHandler(data.data.toString())
                 this.setState({email:'',password:''},()=>{swal("Login successful!", "...Please press enter for the next!");})
@@ -62,15 +64,14 @@ export class LoginPage extends Component {
                                 <input autoFocus className="box-size bl" onChange={this.onChangeEmail} value={this.state.email} type="email" required autoComplete="off" name="email" placeholder=" abc@gmail.com"/>
                             </div>
 
-                            
                             <div className="field-wrap">
                                 <label>
                                 Password<span className="req">*</span>
                                 </label>
                                 <input id="pass" className="box-size bl" onChange={this.onChangePass} value={this.state.password} type="password" required autoComplete="off" name="Password" placeholder=" abc@123$ABC"/>
                             </div>
-                                {/* <p><a href="https://jagannath-swarnkar.github.io/HTML_projects/signup">Signup</a></p>
-                                    <p><a href="#">Forgot Password?</a></p>  */}
+                                <p><a onClick={this.props.signup}>Signup</a></p><br/>
+                                    {/* <p><a href="#">Forgot Password?</a></p>  */}
                                 <button onClick={this.props.login} id="login" className="button button-block">Log In</button>
                         
                         

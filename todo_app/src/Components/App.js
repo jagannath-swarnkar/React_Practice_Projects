@@ -4,6 +4,7 @@ import Stats from './Stats';
 import Todo from './Todo';
 import List from './todoList';
 import axios from 'axios';
+import _ from 'underscore';
 
 
 export default class App extends Component{
@@ -15,18 +16,14 @@ export default class App extends Component{
             itemList:[],
             defaultList:'total',
             editId:"",
-            jwt:''
+            jwt:'',
+            todoId:'',
+            editItem:''
         }
     }
 
     UNSAFE_componentWillMount(){     
         this.setState({jwt:this.props.jwt},()=>{
-            // axios
-            // .post('/token',{'token':this.state.jwt})
-            // .then(()=>console.log('token send to backend'))
-            // .catch((err)=>{console.log('err in sending token to the backend :',err)})
-        // })
-            
         axios
         .get('/get',{params:{token:this.state.jwt}})
         .then(result=>{console.log('get method',result.data);
@@ -50,8 +47,10 @@ export default class App extends Component{
     }
 
     addItem = (e) => {
+        // console.log('this is e',e.target)
     if(e.key==='Enter' || e.target.id === 'button'){
-        if(this.state.item.length>0){
+        
+        if(this.state.item.length>0 || this.state.editItem.length>0){
             var itemList = this.state.itemList;
             if(this.state.editId===""){
             itemList.push({
@@ -64,20 +63,23 @@ export default class App extends Component{
             },()=>{
                 axios
                 .post('/post',{token:this.state.jwt,data:this.state.itemList[this.state.itemList.length-1]})
-                .then(() => console.log('data uploaded!'))
+                .then((data) => {
+                    itemList[itemList.length-1]['id']=data.data[data.data.length-1].id;
+                    itemList[itemList.length-1]['userId']=data.data[data.data.length-1].userId;
+                        this.setState({
+                            itemList:itemList,
+                            item:''
+                        })
+                })   
                 .catch(err => console.log(err));
             });
         }else{
-            console.log(this.state.editId);
-            
             for(var i in itemList){                
                 if(itemList[i].text===this.state.editId){
-                    console.log(itemList[i].text,this.state.editId);
-                    itemList[i].text=this.state.item;
-                    console.log('opopopo',i);
+                    itemList[i].text=this.state.editItem;
                     
                     axios
-                    .put("/put/"+i, {token:this.state.jwt,text:this.state.item})
+                    .put("/put/"+i, {token:this.state.jwt,text:this.state.editItem,id:itemList[i].id})
                     .then(()=>{
                         console.log("put mehtonfsnj");
                     })
@@ -89,7 +91,8 @@ export default class App extends Component{
             this.setState({
                 itemList:itemList,
                 editId:"",
-                item:''
+                editItem:'',
+                todoId:null
             })
         }
         }}
@@ -97,18 +100,31 @@ export default class App extends Component{
 
     checkbox = (e) => {
         const itemList = this.state.itemList;
-        for(var i in itemList){            
-            if(itemList[i].text===e.target.id){
-                itemList[i].done = true;
-                this.setState({ itemList })
-                axios
-                .put('/done/'+i,{done:true,text:itemList[i].text,token:this.state.jwt})
-                .then(()=>{console.log('done')
-                })
-                .catch((err)=>{console.log('err in done updating',err)
-                })
-            }
+        var dict = _.findWhere(this.state.itemList,{text:e.target.id})
+        if(dict.done===0 || dict.done === false){
+            console.log(dict);
+            
+            dict.done = true;
+            this.setState({ itemList })
+            
+            axios
+            .put('/done/'+dict.id,{done:true,text:dict.text,token:this.state.jwt,id:dict.id})
+            .then(()=>{console.log('done updated to true')
+            })
+            .catch((err)=>{console.log('err in done updating',err)
+            })
+        }else{
+            dict.done = false;
+            this.setState({ itemList })
+            
+            axios
+            .put('/done/'+dict.id,{done:false,text:dict.text,token:this.state.jwt,id:dict.id})
+            .then(()=>{console.log('done updated to false')
+            })
+            .catch((err)=>{console.log('err in done updating',err)
+            })
         }
+
     }
 
     listShouldbe = (e) =>{ 
@@ -123,25 +139,25 @@ export default class App extends Component{
         }
     }
     edit = (e) =>{
-        console.log(e.target.id);
-        
-        var itemList = this.state.itemList
-        for(var i in itemList){
-            if(itemList[i].text===e.target.id){
-                this.setState({
-                    item:itemList[i].text,
-                    editId:e.target.id
-                })
-            }
-        }
+        var dict = _.findWhere(this.state.itemList,{text:e.target.id})
+        this.setState({
+            editItem:dict.text,
+            editId:e.target.id,
+            todoId:dict.id
+        })  
+    }
+    editChangeHandler=(e)=>{
+        this.setState({
+            editItem:event.target.value
+        })
     }
     
     render(){
         return (
             <div>
                 <Stats listShouldbe={this.listShouldbe} itemList={this.state.itemList} />
-                <Todo addItem={this.addItem} todo={this.state.item} onChangeHandler={this.onChangeHandler} addItem={this.addItem}/>
-                <List addItem={this.addItem} checkbox={this.checkbox} itemList={this.state.itemList} defaultList={this.state.defaultList} edit={this.edit}/>
+                <Todo addItem={this.addItem} todo={this.state.item} onChangeHandler={this.onChangeHandler} />
+                <List addItem={this.addItem} checkbox={this.checkbox} editChangeHandler={this.editChangeHandler} itemList={this.state.itemList} defaultList={this.state.defaultList} todo={this.state.editItem} todoId={this.state.todoId} edit={this.edit}/>
             </div>
         )
     }
