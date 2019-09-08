@@ -15,17 +15,15 @@ export class Signup extends Component {
         }
     }
 
+
     onSubmitHandler = (e) =>{
         e.preventDefault();
         axios
         .post('/signup',(this.state))        
         .then((result)=>{
-            console.log(result.data);
-            
-            if(result.data!=='err'){swal("Signup successful!", "Please signin !","success"),this.props.login}
-            else{swal("Signup failed!", "User email already exists, Please signin !","error"),this.props.login}
-            console.log(result.data[0]);
-            this.props.login
+            if(result.data!=='err'){swal("Signup successful!", "Please signin !","success")}
+            else{swal("Signup failed!", "User email already exists, Please signin !","error")};
+            this.props.login()
             this.setState({name:'',email:'',password1:'',password2:''})
         })
         
@@ -44,10 +42,6 @@ export class Signup extends Component {
     password2Change = (e) =>{
         this.setState({password2:e.target.value})
     }
-
-    
-
-
     
     render() {
         return (

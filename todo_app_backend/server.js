@@ -166,17 +166,16 @@ app.post('/login',(req,res)=>{
     })
 })
 
-// // endpoint to verify the jwt token
-// app.get('/home',checkToken,(req,res)=>{
-//     jwt.verify(req.token,process.env.SECRET,(err,authData)=>{
-//         if(!err){console.log(authData);res.send(authData)}
-//         else{console.log('err in auth',err);
-//         }
-//         // console.log(req.token);
-        
-        
-//     })
-// })
+app.post('/delete/:id',(req,res)=>{
+    knex('todo')
+    .del()
+    .where('todo.id',req.body.id)
+    .then((data)=>{
+        knex('todo').select('*').where('todo.userId',3).then((result)=>{console.log(result);res.send(result)}).catch((err)=>console.log(err))
+        // res.send(result)
+    })
+    .catch((err)=>{console.log('err in deleting data in backend',err)})
+})
 
 app.listen(PORT=8080,()=>{
     console.log("Your backend is working on port : ",PORT);

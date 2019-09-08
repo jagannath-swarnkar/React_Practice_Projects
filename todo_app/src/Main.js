@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import LoginPage from './Components/LoginPage';
 import App from './Components/App';
 import Signup from './Components/Signup';
-import './Main.css';
-
 
 export class Main extends Component {
     constructor(props) {
