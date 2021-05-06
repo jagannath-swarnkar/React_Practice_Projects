@@ -15,7 +15,7 @@
     "react-scripts": "0.9.5",
     "reactstrap": "^8.0.1",
     "sweetalert": "^2.1.2",
-    "underscore": "^1.9.1"
+    "underscore": "^1.12.1"
   },
   "devDependencies": {},
   "scripts": {
